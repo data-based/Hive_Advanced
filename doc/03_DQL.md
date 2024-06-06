@@ -127,3 +127,51 @@ set hive.optimize.ppd = true
 先做条件过滤，再做关联查询
 
 如果关掉 谓词下推，还需要关闭 CBO 优化，然后再用 Explain 查看执行计划。此时会先 join 操作然后再做条件查询。
+
+
+
+### MapJoin
+
+将小表数据放到 Map 内存中，避免 Reducer 操作
+
+默认开启
+
+```sql
+set hive.auto.convert.join = true
+```
+
+阈值设置，默认 25M 以下认为是小表
+
+```sql
+set hive.mapjoin.smalltable.filesize= 25000000;
+```
+
+
+
+同过测试不同的大表 join 小表，查看 Explapin 执行计划，根据关键字查看 join是在map阶段还是 reduce 阶段，
+
++  Map Join Operator
++  Join Operator
+
+注意： left join 就是会引发 map join 失效
+
+
+
+### SMB Join
+
+大表和大表进行 Join，使用分桶，两表join需要使用倍数关系的桶数量。
+
+
+
+
+
+### 笛卡尔积
+
+join 时，不加 on 条件，或者无效 on 条件。当 Hive 设定了为严格模式，不允许 HQL 语句出现笛卡尔积。
+
+```sql
+set hive.mapred.mode = strict;
+```
+
+
+
